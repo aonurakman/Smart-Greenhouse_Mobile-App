@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private Button gh1Button;
     private Button gh2Button;
@@ -78,12 +78,12 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Toast("see ya");
+    protected void onDestroy() {
+        super.onDestroy();
         receiver.turnOff();
         receiver.cancel(true);
     }
+
 
     private void firstTime() {
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
@@ -159,6 +159,7 @@ public class MainActivity extends Activity {
 
     private void openDetails(int index){
         receiver.turnOff();
+        receiver.cancel(true);
         Intent intent = new Intent(MainActivity.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), index);
         startActivity(intent);
@@ -166,12 +167,14 @@ public class MainActivity extends Activity {
 
     private void goToSettings(){
         receiver.turnOff();
+        receiver.cancel(true);
         Intent intent = new Intent(MainActivity.this, Settings.class);
         startActivity(intent);
     }
 
     private void refresh(){
         receiver.turnOff();
+        receiver.cancel(true);
         Intent intent = new Intent(MainActivity.this, MainActivity.class);
         startActivity(intent);
     }
