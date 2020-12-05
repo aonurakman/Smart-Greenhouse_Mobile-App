@@ -7,32 +7,59 @@
     tools:context=".Settings">
 
     <LinearLayout
-        android:layout_height="fill_parent"
         android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/DarkMode"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
         <ToggleButton
             android:id="@+id/darkModeToggle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
             android:textAllCaps="false"
             android:textOff="@string/darkModeOff"
             android:textOn="@string/darkModeOn" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/ServerIp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="100">
+
+            <EditText
+                android:id="@+id/ipBox"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="80"
+                android:hint="xxx.xxx.x.xx" />
+
+            <ImageButton
+                android:id="@+id/setIpButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="20"
+                android:backgroundTint="@color/button2"
+                android:padding="0dp"
+                app:srcCompat="?android:attr/textCheckMark" />
+
         </LinearLayout>
+
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -1,15 +1,14 @@
 package com.example.smartgreenhouse;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
 
 import static android.net.Uri.encode;
-import static java.lang.Thread.sleep;
 
 public class send extends AsyncTask<Void, Void, Void> {
     String FORMAT = "utf-8";
@@ -62,10 +61,10 @@ public class send extends AsyncTask<Void, Void, Void> {
 
             s.close();
         } catch (UnknownHostException e) {
-            System.out.println("Unknown Host");
+            Log.i("HATA:","Uknown host!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("IOError");
+            Log.i("HATA:","IOException!");
             e.printStackTrace();
         }
         return null;

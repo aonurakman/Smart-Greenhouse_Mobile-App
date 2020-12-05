@@ -1,7 +1,9 @@
 package com.example.smartgreenhouse;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,7 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private Button gh1Button;
     private Button gh2Button;
@@ -22,12 +24,15 @@ public class MainActivity extends AppCompatActivity {
     private Button homeButton;
     private Button settingsButton;
 
+    receive receiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         firstTime();
+        startListening();
         getConnections();
         getXmlItems();
 
@@ -72,6 +77,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Toast("see ya");
+        receiver.turnOff();
+        receiver.cancel(true);
+    }
+
     private void firstTime() {
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
         boolean firstTime = setting0.getBoolean(getString(R.string.firstTime), true);
@@ -85,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
             editor0.apply();
 
             editor0.putBoolean(getString(R.string.darkMode), false);
+            editor0.apply();
+
+            editor0.putString(getString(R.string.ipSelection), "192.168.0.21");
             editor0.apply();
 
             int i;
@@ -111,16 +127,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void getXmlItems() {
         List<Button> buttonArray = new ArrayList<>();
-        gh1Button = (Button)findViewById(R.id.greenhouse1);
+        gh1Button = findViewById(R.id.greenhouse1);
         buttonArray.add(gh1Button);
-        gh2Button = (Button)findViewById(R.id.greenhouse2);
+        gh2Button = findViewById(R.id.greenhouse2);
         buttonArray.add(gh2Button);
-        gh3Button = (Button)findViewById(R.id.greenhouse3);
+        gh3Button = findViewById(R.id.greenhouse3);
         buttonArray.add(gh3Button);
-        gh4Button = (Button)findViewById(R.id.greenhouse4);
+        gh4Button = findViewById(R.id.greenhouse4);
         buttonArray.add(gh4Button);
-        settingsButton = (Button)findViewById(R.id.settingsButton);
-        homeButton = (Button)findViewById(R.id.homeButton);
+        settingsButton = findViewById(R.id.settingsButton);
+        homeButton = findViewById(R.id.homeButton);
 
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
 
@@ -142,19 +158,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openDetails(int index){
+        receiver.turnOff();
         Intent intent = new Intent(MainActivity.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), index);
         startActivity(intent);
     }
 
     private void goToSettings(){
+        receiver.turnOff();
         Intent intent = new Intent(MainActivity.this, Settings.class);
         startActivity(intent);
     }
 
     private void refresh(){
+        receiver.turnOff();
         Intent intent = new Intent(MainActivity.this, MainActivity.class);
         startActivity(intent);
+    }
+
+    private void startListening(){
+        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
+        receiver = new receive();
+        receiver.turnOn();
+        receiver.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
+        receiver.execute();
     }
 
     private void getConnections() {
@@ -164,10 +191,10 @@ public class MainActivity extends AppCompatActivity {
         editor0.apply();
 
         send sender = new send();
-        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
         String message = "0." + (getString(R.string.list) + ".") + ("0" + ".") + ("0" + "-");
         sender.setMessage(message);
-        sender.execute();
+        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
     }

@@ -11,7 +11,7 @@
     <string name="connected">Not Connected</string>
     <string name="nconnected">Connected</string>
 
-    <string name="DarkMode">Dark Mode</string>
+    <string name="ServerIp">Server IP</string>
     <string name="darkModeOn">Dark Mode On</string>
     <string name="darkModeOff">Dark Mode Off</string>
 
@@ -23,6 +23,7 @@
     <string name="memory">memory</string>
     <string name="responseCounter">responseCounter</string>
     <string name="darkMode">darkMode</string>
+    <string name="ipSelection">ipSelection</string>
     <string name="Temp">Temp</string>
     <string name="Goal">Goal</string>
     <string name="isOn">Home</string>
@@ -40,6 +41,7 @@
 
     <string name="approve1">New temperature goal has been set.</string>
     <string name="approve2">System has been shut down successfully.</string>
+    <string name="approve3">Server IP updated successfully.</string>
 
     <string name="applyCmd">Apply Command</string>
     <string name="shutDwn">Shut Down System</string>
@@ -51,7 +53,6 @@
     <string name="ask">ASK</string>
     <string name="list">LST</string>
 
-    <string name="ip">192.168.0.21</string>
     <string name="port">8000</string>
 
 

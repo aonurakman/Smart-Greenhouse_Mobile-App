@@ -9,13 +9,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class Settings extends AppCompatActivity {
 
     private ToggleButton darkModeToggle;
     private Button homeButton;
     private Button settingsButton;
+    private ImageButton applyIpButton;
+    private EditText ipBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +34,7 @@ public class Settings extends AppCompatActivity {
         darkModeToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                apply();
+                applyDark();
             }
         });
 
@@ -44,10 +52,17 @@ public class Settings extends AppCompatActivity {
             }
         });
 
+        applyIpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                applyIP();
+            }
+        });
+
 
     }
 
-    private void apply() {
+    private void applyDark() {
         SharedPreferences setting1 = getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor1 = setting1.edit();
         editor1.putBoolean(getString(R.string.darkMode), darkModeToggle.isChecked());
@@ -56,13 +71,28 @@ public class Settings extends AppCompatActivity {
         else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
+    private void applyIP() {
+        SharedPreferences setting1 = getSharedPreferences(getString(R.string.memory), 0);
+        SharedPreferences.Editor editor1 = setting1.edit();
+        String ip = ipBox.getText().toString();
+        editor1.putString(getString(R.string.ipSelection), ip);
+        editor1.apply();
+        Toast(getString(R.string.approve3));
+    }
+
     private void getXmlItems() {
-        homeButton = (Button)findViewById(R.id.homeButton);
-        settingsButton = (Button)findViewById(R.id.settingsButton);
+        homeButton = findViewById(R.id.homeButton);
+        settingsButton = findViewById(R.id.settingsButton);
+        ipBox = findViewById(R.id.ipBox);
+        applyIpButton = findViewById(R.id.setIpButton);
+        darkModeToggle = findViewById(R.id.darkModeToggle);
+
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
         boolean isDark = setting0.getBoolean(getString(R.string.darkMode), false);
-        darkModeToggle = (ToggleButton)findViewById(R.id.darkModeToggle);
+        String ip = setting0.getString(getString(R.string.ipSelection), "");
+
         darkModeToggle.setChecked(isDark);
+        ipBox.setText(ip);
     }
 
     private void refresh(){
@@ -73,5 +103,9 @@ public class Settings extends AppCompatActivity {
     private void goHome() {
         Intent intent = new Intent(Settings.this, MainActivity.class);
         startActivity(intent);
+    }
+
+    public void Toast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 }

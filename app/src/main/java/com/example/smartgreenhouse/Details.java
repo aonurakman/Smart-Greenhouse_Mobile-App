@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,12 +28,14 @@ public class Details extends AppCompatActivity {
     private Button shutButton;
 
     int greenhouse;
+    receive receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         getRequest();
+        startListening();
         latchData();
         getXmlItems();
 
@@ -49,38 +52,24 @@ public class Details extends AppCompatActivity {
             }
         });
 
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                applyCommand();
-            }
-        });
+        applyButton.setOnClickListener(v -> applyCommand());
 
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refresh();
-            }
-        });
+        refreshButton.setOnClickListener(v -> refresh());
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goHome();
-            }
-        });
+        backButton.setOnClickListener(v -> goHome());
 
-        shutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                shut();
-            }
-        });
-
-
-
-
+        shutButton.setOnClickListener(v -> shut());
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Toast("see ya");
+        super.onStop();
+        receiver.turnOff();
+        receiver.cancel(true);
+    }
+
 
     private void getRequest() {
         try{
@@ -94,16 +83,16 @@ public class Details extends AppCompatActivity {
     }
 
     private void getXmlItems() {
-        ghName = (TextView)findViewById(R.id.ghName);
-        celciusText = (TextView)findViewById(R.id.celciusText);
-        setForLabel = (TextView)findViewById(R.id.setForLabel);
-        slideBarLabel = (TextView)findViewById(R.id.slideBarLabel);
-        backButton = (ImageButton)findViewById(R.id.backButton);
-        applyButton = (Button)findViewById(R.id.applyButton);
-        refreshButton = (ImageButton)findViewById(R.id.refreshButton);
-        shutButton = (Button)findViewById(R.id.shutButton);
-        seekBar = (SeekBar)findViewById(R.id.seekBar);
-        shutButton = (Button)findViewById(R.id.shutButton);
+        ghName = findViewById(R.id.ghName);
+        celciusText = findViewById(R.id.celciusText);
+        setForLabel = findViewById(R.id.setForLabel);
+        slideBarLabel = findViewById(R.id.slideBarLabel);
+        backButton = findViewById(R.id.backButton);
+        applyButton = findViewById(R.id.applyButton);
+        refreshButton = findViewById(R.id.refreshButton);
+        shutButton = findViewById(R.id.shutButton);
+        seekBar = findViewById(R.id.seekBar);
+        shutButton = findViewById(R.id.shutButton);
         String txt = getString(R.string.Greenhouse) + " " + String.valueOf(greenhouse);
         ghName.setText(txt);
 
@@ -140,20 +129,29 @@ public class Details extends AppCompatActivity {
         editor0.apply();
 
         send sender = new send();
-        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
         String message = "0." + (getString(R.string.ask) + ".") + (String.valueOf(greenhouse) + ".") + ("0" + "-");
         sender.setMessage(message);
-        sender.execute();
+        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
     }
 
     private void sendCommand(int value, String command){
         send sender = new send();
-        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
+        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
         String message = "0." + (command + ".") + (String.valueOf(greenhouse) + ".") + (String.valueOf(value) + "-");
         sender.setMessage(message);
-        sender.execute();
+        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    private void startListening(){
+        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
+        receiver = new receive();
+        receiver.turnOn();
+        receiver.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
+        receiver.execute();
     }
 
     private void applyCommand(){
@@ -181,12 +179,14 @@ public class Details extends AppCompatActivity {
     }
 
     private void refresh(){
+        receiver.turnOff();
         Intent intent = new Intent(Details.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), greenhouse);
         startActivity(intent);
     }
 
     private void goHome(){
+        receiver.turnOff();
         Intent intent = new Intent(Details.this, MainActivity.class);
         startActivity(intent);
     }
