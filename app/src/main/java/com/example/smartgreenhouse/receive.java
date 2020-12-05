@@ -77,7 +77,7 @@ public class receive extends AsyncTask<Void, Void, Void> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        this.cancel(true);
         return null;
     }
 
