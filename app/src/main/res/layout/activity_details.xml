@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="70dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/backButton"
@@ -24,13 +25,14 @@
 
         <TextView
             android:id="@+id/ghName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.7"
-            android:layout_width="0dp"
             android:text="@string/Greenhouse1"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@color/brightColor"
+            android:textSize="25sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -62,7 +64,7 @@
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/brightColor"
-            android:textSize="135sp"
+            android:textSize="110sp"
             android:textStyle="bold" />
 
     </FrameLayout>
@@ -90,14 +92,11 @@
     </FrameLayout>
 
 
-    <FrameLayout
-        android:id="@+id/frame3"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frame2" >
 
     <LinearLayout
+        android:id="@+id/frame3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frame2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -136,6 +135,7 @@
 
         <Button
             android:id="@+id/applyButton"
+            android:textAllCaps="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -144,6 +144,7 @@
 
         <Button
             android:id="@+id/shutButton"
+            android:textAllCaps="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -152,5 +153,4 @@
             android:backgroundTint="@color/kahve"
             android:text="@string/shutDwn" />
     </LinearLayout>
-    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

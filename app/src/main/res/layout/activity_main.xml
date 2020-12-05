@@ -22,6 +22,7 @@
 
             <Button
                 android:id="@+id/greenhouse1"
+                android:textAllCaps="false"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_margin="4dp"
@@ -32,6 +33,7 @@
 
             <Button
                 android:id="@+id/greenhouse2"
+                android:textAllCaps="false"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_margin="4dp"
@@ -58,6 +60,7 @@
                 <Button
                     android:id="@+id/greenhouse3"
                     android:layout_width="wrap_content"
+                    android:textAllCaps="false"
                     android:layout_height="fill_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="0.5"
@@ -68,6 +71,7 @@
                 <Button
                     android:id="@+id/greenhouse4"
                     android:layout_width="wrap_content"
+                    android:textAllCaps="false"
                     android:layout_height="fill_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="0.5"
@@ -91,6 +95,7 @@
             android:layout_height="60dp"
             android:layout_margin="4dp"
             android:layout_weight="0.5"
+            android:textAllCaps="false"
             android:text="@string/Home" />
 
         <Button
@@ -99,6 +104,7 @@
             android:layout_height="60dp"
             android:layout_margin="4dp"
             android:layout_weight="0.5"
+            android:textAllCaps="false"
             android:text="@string/Settings" />
     </LinearLayout>
 

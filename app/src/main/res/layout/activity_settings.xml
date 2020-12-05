@@ -46,6 +46,7 @@
                 android:layout_height="60dp"
                 android:layout_margin="4dp"
                 android:layout_weight="0.5"
+                android:textAllCaps="false"
                 android:text="@string/Home" />
 
             <Button
@@ -54,6 +55,7 @@
                 android:layout_height="60dp"
                 android:layout_margin="4dp"
                 android:layout_weight="0.5"
+                android:textAllCaps="false"
                 android:text="@string/Settings" />
         </LinearLayout>
 
