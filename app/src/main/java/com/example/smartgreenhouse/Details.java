@@ -65,7 +65,6 @@ public class Details extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         receiver.turnOff();
-        receiver.cancel(true);
     }
 
 
@@ -178,7 +177,6 @@ public class Details extends AppCompatActivity {
 
     private void refresh(){
         receiver.turnOff();
-        receiver.cancel(true);
         Intent intent = new Intent(Details.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), greenhouse);
         startActivity(intent);
@@ -186,7 +184,6 @@ public class Details extends AppCompatActivity {
 
     private void goHome(){
         receiver.turnOff();
-        receiver.cancel(true);
         Intent intent = new Intent(Details.this, MainActivity.class);
         startActivity(intent);
     }
