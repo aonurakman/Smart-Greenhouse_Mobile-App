@@ -93,10 +93,6 @@ public class Details extends AppCompatActivity {
         }
     }
 
-    private void latchData(){
-
-    }
-
     private void getXmlItems() {
         ghName = (TextView)findViewById(R.id.ghName);
         celciusText = (TextView)findViewById(R.id.celciusText);
@@ -137,8 +133,32 @@ public class Details extends AppCompatActivity {
         }
     }
 
+    private void latchData(){
+        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
+        SharedPreferences.Editor editor0 = setting0.edit();
+        editor0.putInt(getString(R.string.responseCounter), 3);
+        editor0.apply();
+
+        send sender = new send();
+        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        String message = "0." + (getString(R.string.ask) + ".") + (String.valueOf(greenhouse) + ".") + ("0" + "-");
+        sender.setMessage(message);
+        sender.execute();
+
+        //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
+    }
+
+    private void sendCommand(int value, String command){
+        send sender = new send();
+        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        String message = "0." + (command + ".") + (String.valueOf(greenhouse) + ".") + (String.valueOf(value) + "-");
+        sender.setMessage(message);
+        sender.execute();
+    }
+
     private void applyCommand(){
         int newGoal = seekBar.getProgress();
+        sendCommand(newGoal, getString(R.string.setCommand));
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor0 = setting0.edit();
         editor0.putInt(String.valueOf(greenhouse) + getString(R.string.Goal), newGoal);
@@ -146,6 +166,17 @@ public class Details extends AppCompatActivity {
         editor0.putBoolean(String.valueOf(greenhouse) + getString(R.string.isOn), true);
         editor0.apply();
         Toast(getString(R.string.approve1));
+        refresh();
+    }
+
+    private void shut(){
+        sendCommand(0, getString(R.string.shutCommand));
+        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
+        SharedPreferences.Editor editor0 = setting0.edit();
+        String txt = String.valueOf(greenhouse) + getString(R.string.isOn);
+        editor0.putBoolean(txt, false);
+        editor0.apply();
+        Toast(getString(R.string.approve2));
         refresh();
     }
 
@@ -158,16 +189,6 @@ public class Details extends AppCompatActivity {
     private void goHome(){
         Intent intent = new Intent(Details.this, MainActivity.class);
         startActivity(intent);
-    }
-
-    private void shut(){
-        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
-        SharedPreferences.Editor editor0 = setting0.edit();
-        String txt = String.valueOf(greenhouse) + getString(R.string.isOn);
-        editor0.putBoolean(txt, false);
-        editor0.apply();
-        Toast(getString(R.string.approve2));
-        refresh();
     }
 
     public void Toast(String s) {

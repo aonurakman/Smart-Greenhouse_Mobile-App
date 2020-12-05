@@ -158,7 +158,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConnections() {
+        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
+        SharedPreferences.Editor editor0 = setting0.edit();
+        editor0.putInt(getString(R.string.responseCounter), 1);
+        editor0.apply();
 
+        send sender = new send();
+        sender.setPortIp(getString(R.string.ip), getString(R.string.port));
+        String message = "0." + (getString(R.string.list) + ".") + ("0" + ".") + ("0" + "-");
+        sender.setMessage(message);
+        sender.execute();
+
+        //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
     }
 
     public void Toast(String s) {
