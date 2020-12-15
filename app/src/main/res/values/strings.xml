@@ -26,7 +26,7 @@
     <string name="ipSelection">ipSelection</string>
     <string name="Temp">Temp</string>
     <string name="Goal">Goal</string>
-    <string name="isOn">Home</string>
+    <string name="isOn">isOn</string>
     <string name="isConnected">isConnected</string>
 
     <string name="crntlySet">Currently set for: </string>
@@ -48,10 +48,6 @@
 
     <string name="XX">XX</string>
 
-    <string name="setCommand">SET</string>
-    <string name="shutCommand">SHT</string>
-    <string name="ask">ASK</string>
-    <string name="list">LST</string>
 
     <string name="port">8000</string>
 

@@ -27,8 +27,8 @@ public class Details extends AppCompatActivity {
     private Button applyButton;
     private Button shutButton;
 
-    int greenhouse;
-    receive receiver;
+    int greenhouseCode;
+    Client client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +62,22 @@ public class Details extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        receiver.turnOff();
+    protected void onRestart() {
+        super.onRestart();
+        startListening();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        client.turnOff();
+    }
 
     private void getRequest() {
         try{
             Intent intent = this.getIntent();
             if (intent != null) {
-                greenhouse = intent.getExtras().getInt(getString(R.string.greenhouse));
+                greenhouseCode = intent.getExtras().getInt(getString(R.string.greenhouse));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,15 +95,20 @@ public class Details extends AppCompatActivity {
         shutButton = findViewById(R.id.shutButton);
         seekBar = findViewById(R.id.seekBar);
         shutButton = findViewById(R.id.shutButton);
-        String txt = getString(R.string.Greenhouse) + " " + String.valueOf(greenhouse);
+        String txt = getString(R.string.Greenhouse) + " " + String.valueOf(greenhouseCode);
         ghName.setText(txt);
 
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
-        txt = String.valueOf(greenhouse) + getString(R.string.Temp);
+
+        txt = String.valueOf(greenhouseCode) + getString(R.string.isConnected);
+        Boolean isConn = setting0.getBoolean(txt, false);
+        if (!isConn){ goHome(); }
+
+        txt = String.valueOf(greenhouseCode) + getString(R.string.Temp);
         int temperature = setting0.getInt(txt, 0);
-        txt = String.valueOf(greenhouse) + getString(R.string.Goal);
+        txt = String.valueOf(greenhouseCode) + getString(R.string.Goal);
         int goal = setting0.getInt(txt, 0);
-        txt = String.valueOf(greenhouse) + getString(R.string.isOn);
+        txt = String.valueOf(greenhouseCode) + getString(R.string.isOn);
         boolean isOn = setting0.getBoolean(txt, false);
 
         if (isOn) {
@@ -120,71 +130,87 @@ public class Details extends AppCompatActivity {
     }
 
     private void latchData(){
-        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
-        SharedPreferences.Editor editor0 = setting0.edit();
-        editor0.putInt(getString(R.string.responseCounter), 3);
-        editor0.apply();
-
-        send sender = new send();
-        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
-        String message = "0." + (getString(R.string.ask) + ".") + (String.valueOf(greenhouse) + ".") + ("0" + "-");
-        sender.setMessage(message);
-        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-        //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
+        String message = "X" + "." + (String.valueOf(greenhouseCode));
+        client.waitForResponse = 1;
+        client.send(message);
+        while(client.waitForResponse > 0){}
+        applyClientData();
     }
 
-    private void sendCommand(int value, String command){
-        send sender = new send();
-        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
-        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
-        String message = "0." + (command + ".") + (String.valueOf(greenhouse) + ".") + (String.valueOf(value) + "-");
-        sender.setMessage(message);
-        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    private void applyClientData(){
+        SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
+        SharedPreferences.Editor editor0 = setting0.edit();
+
+        String txt = String.valueOf(client.gCode) + getString(R.string.isOn);
+        editor0.putBoolean(txt, (client.goal < 51));
+        editor0.apply();
+
+        txt = String.valueOf(client.gCode) + getString(R.string.Temp);
+        editor0.putInt(txt, (client.temperature));
+        editor0.apply();
+
+        txt = String.valueOf(client.gCode) + getString(R.string.isConnected);
+        editor0.putBoolean(txt, (client.goal < 52));
+        editor0.apply();
+
+        txt = String.valueOf(client.gCode) + getString(R.string.Goal);
+        editor0.putInt(txt, (client.goal));
+        editor0.apply();
+
+    }
+
+    private void sendCommand(int value){
+        String message = (String.valueOf(greenhouseCode) + ".") + (String.valueOf(value));
+        client.send(message);
     }
 
     private void startListening(){
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
-        receiver = new receive();
-        receiver.turnOn();
-        receiver.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
-        receiver.execute();
+        client = new Client();
+        client.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
+        client.turnOn();
+        client.execute();
     }
 
     private void applyCommand(){
         int newGoal = seekBar.getProgress();
-        sendCommand(newGoal, getString(R.string.setCommand));
+        sendCommand(newGoal);
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor0 = setting0.edit();
-        editor0.putInt(String.valueOf(greenhouse) + getString(R.string.Goal), newGoal);
+        editor0.putInt(String.valueOf(greenhouseCode) + getString(R.string.Goal), newGoal);
         editor0.apply();
-        editor0.putBoolean(String.valueOf(greenhouse) + getString(R.string.isOn), true);
+        editor0.putBoolean(String.valueOf(greenhouseCode) + getString(R.string.isOn), true);
         editor0.apply();
         Toast(getString(R.string.approve1));
         refresh();
     }
 
     private void shut(){
-        sendCommand(0, getString(R.string.shutCommand));
+        sendCommand(51);
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor0 = setting0.edit();
-        String txt = String.valueOf(greenhouse) + getString(R.string.isOn);
+        String txt = String.valueOf(greenhouseCode) + getString(R.string.isOn);
         editor0.putBoolean(txt, false);
+        editor0.apply();
+        txt = String.valueOf(greenhouseCode) + getString(R.string.Goal);
+        editor0.putInt(txt, 51);
         editor0.apply();
         Toast(getString(R.string.approve2));
         refresh();
     }
 
     private void refresh(){
-        receiver.turnOff();
+        client.turnOff();
         Intent intent = new Intent(Details.this, Details.class);
-        intent.putExtra(getString(R.string.greenhouse), greenhouse);
+        intent.putExtra(getString(R.string.greenhouse), greenhouseCode);
+        while (client.isActive()) {}
         startActivity(intent);
     }
 
     private void goHome(){
-        receiver.turnOff();
+        client.turnOff();
         Intent intent = new Intent(Details.this, MainActivity.class);
+        while (client.isActive()) {}
         startActivity(intent);
     }
 

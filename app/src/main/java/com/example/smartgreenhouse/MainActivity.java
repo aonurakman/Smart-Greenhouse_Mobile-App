@@ -1,10 +1,9 @@
 package com.example.smartgreenhouse;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private Button homeButton;
     private Button settingsButton;
 
-    receive receiver;
+    Client client;
 
 
     @Override
@@ -77,12 +76,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        receiver.turnOff();
+    protected void onRestart() {
+        super.onRestart();
+        startListening();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        client.turnOff();
+    }
 
     private void firstTime() {
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
@@ -91,9 +96,6 @@ public class MainActivity extends AppCompatActivity {
         if (firstTime) {
             SharedPreferences.Editor editor0 = setting0.edit();
             editor0.putBoolean(getString(R.string.firstTime), false);
-            editor0.apply();
-
-            editor0.putInt(getString(R.string.responseCounter), 0);
             editor0.apply();
 
             editor0.putBoolean(getString(R.string.darkMode), false);
@@ -116,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 editor0.putBoolean(String.valueOf(i) + getString(R.string.isConnected), true);
                 editor0.apply();
             }
+
         }
 
         boolean darkMode = setting0.getBoolean(getString(R.string.darkMode), false);
@@ -142,14 +145,14 @@ public class MainActivity extends AppCompatActivity {
         int i;
         for(i=1;i<=4;i++){
             int idx = i - 1;
-            if (!(setting0.getBoolean(String.valueOf(i) + getString(R.string.isConnected), false))){
-                buttonArray.get(idx).setEnabled(false);
+            if ((setting0.getBoolean(String.valueOf(i) + getString(R.string.isConnected), false))){
                 CharSequence txt = buttonArray.get(idx).getText();
                 txt = txt + "\n" + getString(R.string.nconnected);
                 buttonArray.get(idx).setText(txt);
             }
             else {
                 CharSequence txt = buttonArray.get(idx).getText();
+                buttonArray.get(idx).setEnabled(false);
                 txt = txt + "\n" + getString(R.string.connected);
                 buttonArray.get(idx).setText(txt);
             }
@@ -157,45 +160,75 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openDetails(int index){
-        receiver.turnOff();
+        client.turnOff();
         Intent intent = new Intent(MainActivity.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), index);
+        while (client.isActive()) {}
         startActivity(intent);
     }
 
     private void goToSettings(){
-        receiver.turnOff();
+        client.turnOff();
         Intent intent = new Intent(MainActivity.this, Settings.class);
+        while (client.isActive()) {}
         startActivity(intent);
     }
 
     private void refresh(){
-        receiver.turnOff();
+        client.turnOff();
         Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        while (client.isActive()) {}
         startActivity(intent);
     }
 
     private void startListening(){
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
-        receiver = new receive();
-        receiver.turnOn();
-        receiver.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
-        receiver.execute();
+        client = new Client();
+        client.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
+        client.turnOn();
+        client.execute();
     }
 
     private void getConnections() {
+        client.waitForResponse = 1;
+        client.send("X.1");
+        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [1]");}
+        applyClientData();
+        client.waitForResponse = 1;
+
+        client.send("X.2");
+        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [2]");}
+        applyClientData();
+        client.waitForResponse = 1;
+        client.send("X.3");
+        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [3]");}
+        applyClientData();
+        client.waitForResponse = 1;
+        client.send("X.4");
+        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [4]");}
+        applyClientData();
+    }
+
+    private void applyClientData(){
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor0 = setting0.edit();
-        editor0.putInt(getString(R.string.responseCounter), 1);
+
+        String txt = String.valueOf(client.gCode) + getString(R.string.isOn);
+        editor0.putBoolean(txt, (client.goal < 51));
         editor0.apply();
 
-        send sender = new send();
-        sender.setPortIp(setting0.getString(getString(R.string.ipSelection), ""), getString(R.string.port));
-        String message = "0." + (getString(R.string.list) + ".") + ("0" + ".") + ("0" + "-");
-        sender.setMessage(message);
-        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        txt = String.valueOf(client.gCode) + getString(R.string.Temp);
+        editor0.putInt(txt, (client.temperature));
+        editor0.apply();
 
-        //while (setting0.getInt(getString(R.string.responseCounter), 0) > 0 ){}
+        txt = String.valueOf(client.gCode) + getString(R.string.isConnected);
+        editor0.putBoolean(txt, (client.goal < 52));
+        editor0.apply();
+
+        txt = String.valueOf(client.gCode) + getString(R.string.Goal);
+        editor0.putInt(txt, (client.goal));
+        editor0.apply();
+
     }
 
     public void Toast(String s) {
