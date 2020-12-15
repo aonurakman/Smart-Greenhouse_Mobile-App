@@ -23,6 +23,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
     private boolean shouldQuit;
     private boolean active;
     public int waitForResponse = 0;
+    public int waitForACK = 0;
 
     private String message = "";
     private boolean shouldSend = false;
@@ -46,7 +47,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
         }
 
         while (shouldLoop) {
-            //Log.i("[SMARTGREENHOUSE]", "LOOP STARTS");
+            Log.i("[SMARTGREENHOUSE]", "LOOP STARTS");
             try {
                 if (shouldSend){
                     pw = new PrintWriter(s.getOutputStream());
@@ -80,13 +81,18 @@ public class Client extends AsyncTask<Void, Void, Void> {
                 //Log.i("[SMARTGREENHOUSE]", "PASSED");
                 if (fromServer.length()>0){
                     Log.i("[SMARTGREENHOUSE]", "RECEIVED " + fromServer);
-                    if (fromServer != "RCVD"){
+                    if (!fromServer.equals("RCVD")){
                         //Log.i("[SMARTGREENHOUSE]", "PARSING " + fromServer);
                         parseServerResponse(fromServer);
                         if (waitForResponse>0){
                             waitForResponse -= 1;
                         }
                         Log.i("[SMARTGREENHOUSE]", "PARSED " + fromServer);
+                    } else{
+                        Log.i("[SMARTGREENHOUSE]", "SERVER ACKED");
+                        if (waitForACK > 0) {
+                            waitForACK -= 1;
+                        }
                     }
                 }
             }
@@ -161,5 +167,9 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
     public boolean isActive(){
         return this.active;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

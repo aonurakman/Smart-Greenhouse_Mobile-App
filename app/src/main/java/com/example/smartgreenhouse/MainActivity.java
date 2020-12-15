@@ -41,21 +41,18 @@ public class MainActivity extends AppCompatActivity {
                 openDetails(1);
             }
         });
-
         gh2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDetails(2);
             }
         });
-
         gh3Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDetails(3);
             }
         });
-
         gh4Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             editor0.putBoolean(getString(R.string.darkMode), false);
             editor0.apply();
 
-            editor0.putString(getString(R.string.ipSelection), "192.168.0.21");
+            editor0.putString(getString(R.string.ipSelection), "25.74.127.57");
             editor0.apply();
 
             int i;

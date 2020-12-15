@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -120,7 +121,8 @@ public class Details extends AppCompatActivity {
             slideBarLabel.setText(String.valueOf(goal));
         }
         else {
-            celciusText.setText(getString(R.string.off));
+            txt = String.valueOf(temperature) + getString(R.string.celciusSign);
+            celciusText.setText(txt);
             setForLabel.setText(getString(R.string.sysInactive));
             seekBar.setProgress(0);
             slideBarLabel.setText("0");
@@ -133,7 +135,7 @@ public class Details extends AppCompatActivity {
         String message = "X" + "." + (String.valueOf(greenhouseCode));
         client.waitForResponse = 1;
         client.send(message);
-        while(client.waitForResponse > 0){}
+        while(client.waitForResponse > 0){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE FOR " + client.getMessage()); }
         applyClientData();
     }
 
@@ -160,7 +162,8 @@ public class Details extends AppCompatActivity {
     }
 
     private void sendCommand(int value){
-        String message = (String.valueOf(greenhouseCode) + ".") + (String.valueOf(value));
+        String message = String.valueOf(value) + "." + String.valueOf(greenhouseCode);
+        Log.i("[SMARTGREENHOUSE]", "PREPARING TO SEND " + message);
         client.send(message);
     }
 
@@ -174,7 +177,9 @@ public class Details extends AppCompatActivity {
 
     private void applyCommand(){
         int newGoal = seekBar.getProgress();
+        client.waitForACK = 1;
         sendCommand(newGoal);
+        while(client.waitForACK>0){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR ACK [1] FOR " + client.getMessage()); }
         SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
         SharedPreferences.Editor editor0 = setting0.edit();
         editor0.putInt(String.valueOf(greenhouseCode) + getString(R.string.Goal), newGoal);
@@ -203,7 +208,7 @@ public class Details extends AppCompatActivity {
         client.turnOff();
         Intent intent = new Intent(Details.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), greenhouseCode);
-        while (client.isActive()) {}
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); }
         startActivity(intent);
     }
 
