@@ -133,9 +133,10 @@ public class Details extends AppCompatActivity {
 
     private void latchData(){
         String message = "X" + "." + (String.valueOf(greenhouseCode));
-        client.waitForResponse = 1;
+        client.waitRespond(greenhouseCode);
         client.send(message);
-        while(client.waitForResponse > 0){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE FOR " + client.getMessage()); }
+        int waiter = 0;
+        while(client.isWaitingResponse()){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE FOR " + client.getMessage()); waiter += 1; if (waiter > 2000){ waiter = 0; client.send(message);}}
         applyClientData();
     }
 
@@ -164,7 +165,10 @@ public class Details extends AppCompatActivity {
     private void sendCommand(int value){
         String message = String.valueOf(value) + "." + String.valueOf(greenhouseCode);
         Log.i("[SMARTGREENHOUSE]", "PREPARING TO SEND " + message);
+        client.waitACK();
         client.send(message);
+        int waiter = 0;
+        while(client.isWaitingACK()){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR ACK [1] FOR " + client.getMessage()); waiter += 1; if (waiter > 2000){ waiter = 0; client.send(message);}}
     }
 
     private void startListening(){
@@ -177,45 +181,32 @@ public class Details extends AppCompatActivity {
 
     private void applyCommand(){
         int newGoal = seekBar.getProgress();
-        client.waitForACK = 1;
         sendCommand(newGoal);
-        while(client.waitForACK>0){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR ACK [1] FOR " + client.getMessage()); }
-        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
-        SharedPreferences.Editor editor0 = setting0.edit();
-        editor0.putInt(String.valueOf(greenhouseCode) + getString(R.string.Goal), newGoal);
-        editor0.apply();
-        editor0.putBoolean(String.valueOf(greenhouseCode) + getString(R.string.isOn), true);
-        editor0.apply();
         Toast(getString(R.string.approve1));
         refresh();
     }
 
     private void shut(){
         sendCommand(51);
-        SharedPreferences setting0 = this.getSharedPreferences(getString(R.string.memory), 0);
-        SharedPreferences.Editor editor0 = setting0.edit();
-        String txt = String.valueOf(greenhouseCode) + getString(R.string.isOn);
-        editor0.putBoolean(txt, false);
-        editor0.apply();
-        txt = String.valueOf(greenhouseCode) + getString(R.string.Goal);
-        editor0.putInt(txt, 51);
-        editor0.apply();
         Toast(getString(R.string.approve2));
         refresh();
     }
 
     private void refresh(){
         client.turnOff();
+        int waiter = 0;
         Intent intent = new Intent(Details.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), greenhouseCode);
-        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); }
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); waiter += 1;}
         startActivity(intent);
     }
 
     private void goHome(){
         client.turnOff();
+        int waiter = 0;
         Intent intent = new Intent(Details.this, MainActivity.class);
-        while (client.isActive()) {}
+        Toast(getString(R.string.LoadingMsg));
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); waiter += 1;}
         startActivity(intent);
     }
 

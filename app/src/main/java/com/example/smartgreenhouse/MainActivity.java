@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             editor0.putBoolean(getString(R.string.darkMode), false);
             editor0.apply();
 
-            editor0.putString(getString(R.string.ipSelection), "25.74.127.57");
+            editor0.putString(getString(R.string.ipSelection), "192.168.0.21");
             editor0.apply();
 
             int i;
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         buttonArray.add(gh4Button);
         settingsButton = findViewById(R.id.settingsButton);
         homeButton = findViewById(R.id.homeButton);
+        homeButton.setText(getString(R.string.Refresh));
 
         SharedPreferences setting0 = getSharedPreferences(getString(R.string.memory), 0);
 
@@ -160,21 +161,26 @@ public class MainActivity extends AppCompatActivity {
         client.turnOff();
         Intent intent = new Intent(MainActivity.this, Details.class);
         intent.putExtra(getString(R.string.greenhouse), index);
-        while (client.isActive()) {}
+        int waiter = 0;
+        Toast(getString(R.string.LoadingMsg));
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); waiter += 1;}
         startActivity(intent);
     }
 
     private void goToSettings(){
         client.turnOff();
         Intent intent = new Intent(MainActivity.this, Settings.class);
-        while (client.isActive()) {}
+        int waiter = 0;
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); waiter += 1;}
         startActivity(intent);
     }
 
     private void refresh(){
         client.turnOff();
         Intent intent = new Intent(MainActivity.this, MainActivity.class);
-        while (client.isActive()) {}
+        int waiter = 0;
+        Toast(getString(R.string.LoadingMsg));
+        while (client.isActive()) { Log.i("[SMARTGREENHOUSE]", "WAITING FOR SOCKET BEFORE LEAVING"); waiter += 1;}
         startActivity(intent);
     }
 
@@ -187,22 +193,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConnections() {
-        client.waitForResponse = 1;
+        int waiter = 0;
+        client.waitRespond(1);
         client.send("X.1");
-        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [1]");}
+        while(client.isWaitingResponse()){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [1]"); waiter += 1; if (waiter > 2000){ waiter = 0; client.send("X.1");}}
         applyClientData();
-        client.waitForResponse = 1;
-
+        client.waitRespond(2);
         client.send("X.2");
-        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [2]");}
+        waiter = 0;
+        while(client.isWaitingResponse()){ Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [2]"); waiter += 1; if (waiter > 2000){ waiter = 0; client.send("X.2");}}
         applyClientData();
-        client.waitForResponse = 1;
+        client.waitRespond(3);
         client.send("X.3");
-        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [3]");}
+        waiter = 0;
+        while(client.isWaitingResponse()){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [3]"); waiter += 1; if (waiter > 2000){ waiter = 0; client.send("X.3");}}
         applyClientData();
-        client.waitForResponse = 1;
+        client.waitRespond(4);
         client.send("X.4");
-        while(client.waitForResponse>0){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [4]");}
+        waiter = 0;
+        while(client.isWaitingResponse()){Log.i("[SMARTGREENHOUSE]", "WAITING FOR RESPONSE [4]"); waiter += 1; if (waiter > 2000){ waiter = 0; client.send("X.4");}}
         applyClientData();
     }
 

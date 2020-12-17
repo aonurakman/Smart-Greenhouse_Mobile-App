@@ -69,6 +69,7 @@ public class Settings extends AppCompatActivity {
         editor1.apply();
         if (darkModeToggle.isChecked()) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        Toast("Applied successfully.");
     }
 
     private void applyIP() {
@@ -83,6 +84,7 @@ public class Settings extends AppCompatActivity {
     private void getXmlItems() {
         homeButton = findViewById(R.id.homeButton);
         settingsButton = findViewById(R.id.settingsButton);
+        settingsButton.setText(getString(R.string.Refresh));
         ipBox = findViewById(R.id.ipBox);
         applyIpButton = findViewById(R.id.setIpButton);
         darkModeToggle = findViewById(R.id.darkModeToggle);
@@ -102,6 +104,7 @@ public class Settings extends AppCompatActivity {
 
     private void goHome() {
         Intent intent = new Intent(Settings.this, MainActivity.class);
+        Toast(getString(R.string.LoadingMsg));
         startActivity(intent);
     }
 

@@ -22,8 +22,9 @@ public class Client extends AsyncTask<Void, Void, Void> {
     private boolean shouldLoop;
     private boolean shouldQuit;
     private boolean active;
-    public int waitForResponse = 0;
-    public int waitForACK = 0;
+    private int waitForResponse = 0;
+    private int waitResponseFor = 0;
+    private int waitForACK = 0;
 
     private String message = "";
     private boolean shouldSend = false;
@@ -47,7 +48,35 @@ public class Client extends AsyncTask<Void, Void, Void> {
         }
 
         while (shouldLoop) {
-            Log.i("[SMARTGREENHOUSE]", "LOOP STARTS");
+            //Log.i("[SMARTGREENHOUSE]", "LOOP STARTS");
+
+            try {
+                in = new BufferedReader(new InputStreamReader (s.getInputStream()), 64);
+                //Log.i("[SMARTGREENHOUSE]", "HOLDING");
+                String fromServer = in.readLine();
+                //Log.i("[SMARTGREENHOUSE]", "PASSED");
+                if (fromServer.length()>0){
+                    Log.i("[SMARTGREENHOUSE]", "RECEIVED " + fromServer);
+                    if (!fromServer.equals("RCVD")){
+                        //Log.i("[SMARTGREENHOUSE]", "PARSING " + fromServer);
+                        parseServerResponse(fromServer);
+                        if ((waitForResponse>0)&&(waitResponseFor==gCode)){
+                            waitForResponse -= 1;
+                        }
+                        Log.i("[SMARTGREENHOUSE]", "PARSED " + fromServer);
+                    } else{
+                        if (waitForACK > 0) {
+                            waitForACK -= 1;
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                Log.i("[SMARTGREENHOUSE]", "ERROR [2]");
+                e.printStackTrace();
+            }
+
+
             try {
                 if (shouldSend){
                     pw = new PrintWriter(s.getOutputStream());
@@ -71,33 +100,6 @@ public class Client extends AsyncTask<Void, Void, Void> {
                 }
             } catch (Exception e) {
                 Log.i("[SMARTGREENHOUSE]", "ERROR [1]");
-                e.printStackTrace();
-            }
-
-            try {
-                in = new BufferedReader(new InputStreamReader (s.getInputStream()), 64);
-                //Log.i("[SMARTGREENHOUSE]", "HOLDING");
-                String fromServer = in.readLine();
-                //Log.i("[SMARTGREENHOUSE]", "PASSED");
-                if (fromServer.length()>0){
-                    Log.i("[SMARTGREENHOUSE]", "RECEIVED " + fromServer);
-                    if (!fromServer.equals("RCVD")){
-                        //Log.i("[SMARTGREENHOUSE]", "PARSING " + fromServer);
-                        parseServerResponse(fromServer);
-                        if (waitForResponse>0){
-                            waitForResponse -= 1;
-                        }
-                        Log.i("[SMARTGREENHOUSE]", "PARSED " + fromServer);
-                    } else{
-                        Log.i("[SMARTGREENHOUSE]", "SERVER ACKED");
-                        if (waitForACK > 0) {
-                            waitForACK -= 1;
-                        }
-                    }
-                }
-            }
-             catch (Exception e) {
-                Log.i("[SMARTGREENHOUSE]", "ERROR [2]");
                 e.printStackTrace();
             }
         }
@@ -167,6 +169,23 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
     public boolean isActive(){
         return this.active;
+    }
+
+    public void waitRespond(int gh){
+        this.waitResponseFor = gh;
+        this.waitForResponse = 1;
+    }
+
+    public boolean isWaitingResponse(){
+        return (waitForResponse == 1);
+    }
+
+    public void waitACK(){
+        this.waitForACK = 1;
+    }
+
+    public boolean isWaitingACK(){
+        return (waitForACK == 1);
     }
 
     public String getMessage() {

@@ -17,6 +17,7 @@
 
     <string name="Home">Home</string>
     <string name="Settings">Settings</string>
+    <string name="Refresh">Refresh</string>
     <string name="Back">Back</string>
 
     <string name="firstTime">firstTime</string>
@@ -48,6 +49,7 @@
 
     <string name="XX">XX</string>
 
+    <string name="LoadingMsg">Loading...</string>
 
     <string name="port">8000</string>
 
